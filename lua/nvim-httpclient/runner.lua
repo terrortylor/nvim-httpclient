@@ -7,8 +7,8 @@ local variables
 
 local running = false
 
-local update_status
-local update_view
+local update_status_callback
+local update_view_callback
 
 function M.async_curl(request)
   local curl_args = request:get_curl(variables)
@@ -52,19 +52,23 @@ function M.async_curl(request)
           M.go()
         end
 
-        -- FIXME this cleanup is not accurate, as is missing data for request this should not be reached
+        -- -- FIXME this cleanup is not accurate, as is missing data for request this should not be reached
+        -- if count == #requests then
+        --   running = false
+        --   requests = nil
+        --   variables = nil
+        -- end
+
+        -- update_status_callback(running, requests)
+        update_status_callback()
+        update_view_callback()
+
         if count == #requests then
+          update_status_callback = nil
+          update_view_callback = nil
           running = false
           requests = nil
           variables = nil
-        end
-
-        update_status()
-        update_view()
-
-        if count == #requests then
-          update_status = nil
-          update_view = nil
         end
       end
     )
@@ -88,13 +92,14 @@ function M.make_requests(reqs, vars, status_handler, view_handler)
   count = 0
   requests = reqs
   variables = vars
-
   -- bind callback with args to single func with no args
-  update_status = function()
+  update_status_callback = function()
+  print("runner closure Requests:", #reqs)
     status_handler(running, requests)
   end
+  -- update_status_callback = status_handler
 
-  update_view = function()
+  update_view_callback = function()
     view_handler(requests)
   end
 

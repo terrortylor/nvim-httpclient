@@ -51,7 +51,7 @@ function Request:get_results()
 end
 
 function Request:add_data(key, value)
-  self.data[key] = value
+  table.insert(self.data, string.format("%s=%s", key, value))
 end
 
 function Request:add_extract(key, value)
@@ -125,14 +125,14 @@ function Request:get_data(variables)
 
   local data_string = ''
   if self.data_filename then
-    return self.data_filename
+    return true, self.data_filename
   elseif self.data then
 --    print("building data string")
     -- data is key/value pairs
-    for k,v in pairs(self.data) do
-      local key = var_sub(k)
+    for _, v in pairs(self.data) do
+      -- local key = var_sub(k)
       local value = var_sub(v)
-      data_string = data_string .. string.format('%s=%s&', key, value)
+      data_string = data_string .. string.format('%s&', value)
       if not complete_data then
         return complete_data, nil
       end
@@ -221,5 +221,10 @@ function Request:get_curl(variables)
       curl = string.format('%s?%s', curl, data)
     end
   end
+
+  for k,v in pairs(self.headers) do
+   curl = string.format("%s -H '%s: %s'", curl, k, v)
+  end
+
   return curl
 end

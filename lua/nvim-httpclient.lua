@@ -4,10 +4,14 @@ local parser = require('nvim-httpclient.parser')
 local runner = require('nvim-httpclient.runner')
 local view = require('nvim-httpclient.view')
 local draw = require('ui.window.draw')
-local log = require('util.log')
--- LOG_LEVEL = "DEBUG"
 local M = {}
 local variables
+
+local function error_message(message)
+  api.nvim_command('echohl ErrorMsg')
+    api.nvim_command('echom "' .. message .. '"')
+  api.nvim_command('echohl None')
+end
 
 M.config = {
   -- highlight group to use for message
@@ -64,7 +68,7 @@ function M.inspect_curl()
   local filetype = api.nvim_buf_get_option(0, 'filetype')
 
   if filetype ~= 'http' then
-    log.error('Must be filetype: http')
+    error_message('Must be filetype: http')
     return
   end
 
@@ -78,12 +82,12 @@ function M.inspect_curl()
 
   if #requests > 0 then
     local curl = "curl " .. requests[1]:get_curl(variables)
-    api.nvim_command("echo '" .. curl .. "'")
+    api.nvim_command("echo \"" .. curl .. "\"")
     if M.config.register then
       api.nvim_command(string.format('let @%s = "%s"', M.config.register, curl))
     end
   else
-    log.error("No request found")
+    error_message("No request found")
   end
 
 end
@@ -94,7 +98,7 @@ function M.run(current)
   local filetype = api.nvim_buf_get_option(0, 'filetype')
 
   if filetype ~= 'http' then
-    log.error('Must be filetype: http')
+    error_message('Must be filetype: http')
     return
   end
 

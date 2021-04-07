@@ -1,15 +1,18 @@
 -- luacheck: globals Request
 local testModule
+local api
+local mock = require('luassert.mock')
 
 describe('nvim-httpclient', function()
   describe('parser', function()
-    setup(function()
-      _G._TEST = true
+
+    before_each(function()
       testModule = require('nvim-httpclient.parser')
+      api = mock(vim.api, true)
     end)
 
-    teardown(function()
-      _G._TEST = nil
+    after_each(function()
+      mock.revert(api)
     end)
 
     describe('parse_lines', function()
@@ -91,7 +94,7 @@ describe('nvim-httpclient', function()
         }
         local result, _ = testModule.parse_lines(lines)
 
-        assert.same({goat = 'cheese', blue = 'tasty'}, result[1].data)
+        assert.same({'goat=cheese', 'blue=tasty'}, result[1].data)
       end)
 
       it('Should match data key values with : seperator', function()
@@ -102,7 +105,7 @@ describe('nvim-httpclient', function()
 
         local result, _ = testModule.parse_lines(lines)
 
-        assert.same({goat = 'cheese'}, result[1].data)
+        assert.same({'goat=cheese'}, result[1].data)
       end)
 
       it('Should match set extract values with : seperator', function()
@@ -196,29 +199,29 @@ describe('nvim-httpclient', function()
         assert.same('www.madeup.com', result[1].url)
         assert.same('POST', result[1].verb)
         assert.same('/a/path', result[1].path)
-        assert.same({query = 'param', another = 'queryparam', fromvar = "@house@"}, result[1].data)
+        assert.same({'query=param', 'another=queryparam', "fromvar=@house@"}, result[1].data)
         assert.same({var1 = "value", var2 = "words"}, variables)
       end)
     end)
 
     describe('update_block', function()
       it('Should not add request if URL is empty', function()
-        testModule._reset()
+        testModule.reset()
         local req = Request:new(nil)
 
-        testModule._add_request(req)
-        local result = testModule._get_requests()
+        testModule.add_request(req)
+        local result = testModule.get_requests()
 
         assert.equal(0, #result)
       end)
 
       it('Should add request if URL is set', function()
-        testModule._reset()
+        testModule.reset()
         local req = Request:new(nil)
         req.url = 'goats.com'
 
-        testModule._add_request(req)
-        local result = testModule._get_requests()
+        testModule.add_request(req)
+        local result = testModule.get_requests()
 
         assert.equal(1, #result)
       end)

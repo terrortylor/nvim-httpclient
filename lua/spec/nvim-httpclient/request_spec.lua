@@ -1,43 +1,55 @@
 -- luacheck: globals Request
 require('nvim-httpclient.request')
-local ut = require('util.table')
+
+local api
+local mock = require('luassert.mock')
+local function dict_size(table)
+  local count = 0
+  if table then
+    for _,_ in pairs(table) do
+      count = count + 1
+    end
+  end
+  return count
+end
+
 
 describe('nvim-httpclient', function()
   describe('request', function()
-    setup(function()
-      _G._TEST = true
+    before_each(function()
+      api = mock(vim.api, true)
     end)
 
-    teardown(function()
-      _G._TEST = nil
+    after_each(function()
+      mock.revert(api)
     end)
 
     describe('add_data', function()
       it('Should add data', function()
         local testObj = Request:new(nil)
-        assert.equal(0, ut.dict_size(testObj.data))
+        assert.equal(0, dict_size(testObj.data))
 
         testObj:add_data('goat', 'cheese')
-        assert.equal(1, ut.dict_size(testObj.data))
-        assert.equal('cheese', testObj.data.goat)
+        assert.equal(1, dict_size(testObj.data))
+        assert.equal('goat=cheese', testObj.data[1])
 
         testObj:add_data('food', 'milk')
-        assert.equal(2, ut.dict_size(testObj.data))
-        assert.equal('milk', testObj.data.food)
+        assert.equal(2, dict_size(testObj.data))
+        assert.equal('food=milk', testObj.data[2])
       end)
     end)
 
     describe('add_header', function()
       it('Should add data', function()
         local testObj = Request:new(nil)
-        assert.equal(0, ut.dict_size(testObj.headers))
+        assert.equal(0, dict_size(testObj.headers))
 
         testObj:add_header('X-Header', 'internet')
-        assert.equal(1, ut.dict_size(testObj.headers))
+        assert.equal(1, dict_size(testObj.headers))
         assert.equal('internet', testObj.headers['X-Header'])
 
         testObj:add_header('Other-Stuff', 'yeah')
-        assert.equal(2, ut.dict_size(testObj.headers))
+        assert.equal(2, dict_size(testObj.headers))
         assert.equal('yeah', testObj.headers['Other-Stuff'])
       end)
     end)
@@ -87,15 +99,16 @@ describe('nvim-httpclient', function()
         local testObj = Request:new(nil)
         testObj.data_filename = '@goats.txt'
 
-        local data = testObj:get_data()
+        local success, data = testObj:get_data()
 
+        assert.equals(true, success)
         assert.equals('@goats.txt', data)
       end)
 
       it('Should return data key value pairs without final &', function()
         local testObj = Request:new(nil)
         testObj.data = {
-          booze = 'cruise',
+          'booze=cruise',
         }
 
         local success, data = testObj:get_data()
@@ -104,18 +117,18 @@ describe('nvim-httpclient', function()
         assert.equals('booze=cruise', data)
       end)
 
-      -- -- FIXME map not guanrentted order
-      -- it('Should return data key value pairs', function()
-      --   local testObj = Request:new(nil)
-      --   testObj.data = {
-      --     goat = 'cheese',
-      --     booze = 'cruise',
-      --   }
+      it('Should return data key value pairs', function()
+        local testObj = Request:new(nil)
+        testObj.data = {
+          'goat=cheese',
+          'booze=cruise',
+        }
 
-      --   local data = testObj:get_data()
+        local success,data = testObj:get_data()
 
-      --   assert.equals('goat=cheese&booze=cruise', data)
-      -- end)
+        assert.equals(true, success)
+        assert.equals('goat=cheese&booze=cruise', data)
+      end)
     end)
 
     describe('get_curl', function()
@@ -152,7 +165,7 @@ describe('nvim-httpclient', function()
         local testObj = Request:new(nil)
         testObj.url = 'goats.com'
         testObj.data = {
-          goat = 'cheese'
+          'goat=cheese'
         }
 
         local curl = testObj:get_curl()
@@ -165,7 +178,7 @@ describe('nvim-httpclient', function()
         testObj.url = 'goats.com'
         testObj.verb = 'PUT'
         testObj.data = {
-          goat = 'cheese'
+          'goat=cheese'
         }
 
         local curl = testObj:get_curl()
@@ -178,7 +191,7 @@ describe('nvim-httpclient', function()
         testObj.url = 'goats.com'
         testObj.verb = 'POST'
         testObj.data = {
-          goat = 'cheese'
+          'goat=cheese'
         }
 
         local curl = testObj:get_curl()

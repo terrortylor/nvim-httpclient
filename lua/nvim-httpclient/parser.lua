@@ -1,6 +1,5 @@
 -- luacheck: globals Request
 require'nvim-httpclient.request'
-local s_util = require'util.string'
 
 local M = {}
 
@@ -8,12 +7,12 @@ local M = {}
 local requests
 local variables = {}
 
-local function reset()
+function M.reset()
   requests = {}
   variables = {}
 end
 
-local function add_request(request)
+function M.add_request(request)
   if request and request.url then
     table.insert(requests, request)
   end
@@ -24,14 +23,14 @@ local function is_url(s)
     return true
   elseif s:match('^www.') then
     return true
-  elseif s:match('(.*)%.(.*)$') then
+  elseif s:match('^[^@](.*)%.(.*)$') then
     return true
   end
   return false
 end
 
 function M.parse_lines(buf_lines)
-  reset()
+  M.reset()
   local req = Request:new(nil)
 
 -- TODO add json block support
@@ -63,29 +62,26 @@ function M.parse_lines(buf_lines)
       -- matches headers
     elseif l:match('^H[EADER]*[=:].*[=:]') then
       local key,value = l:match('^H[EADER]*[=:](.*)[=:](.*)')
-      req:add_header(key, s_util.trim_whitespace(value))
+      req:add_header(key, vim.trim(value))
       -- Matches data key value pairs
     elseif l:match('^(.*)[=:](.*)$') then
       local key,value = l:match('(.*)[=:](.*)')
       req:add_data(key, value)
       -- match file for data
     elseif l:match('^%@') then
+      print("found:", l)
       req.data_filename = l
     elseif l:match('^%s*$') then
-      add_request(req)
+      M.add_request(req)
       req = Request:new(nil)
     end
     ::skip_to_next_line::
   end
-  add_request(req)
+  M.add_request(req)
 
   return requests, variables
 end
 
-if _TEST then
-  M._reset = reset
-  M._add_request = add_request
-  M._get_requests = function() return requests end
-end
+function M.get_requests() return requests end
 
 return M
