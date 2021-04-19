@@ -1,0 +1,18 @@
+#######################
+GET - https://jsonplaceholder.typicode.com
+{
+  "userId": 1,
+  "id": 1,
+  "title": "delectus aut autem",
+  "completed": false
+}
+
+#######################
+POST - https://jsonplaceholder.typicode.com
+{
+  "userId": "123",
+  "title": "2",
+  "completed": "false",
+  "id": 201
+}
+

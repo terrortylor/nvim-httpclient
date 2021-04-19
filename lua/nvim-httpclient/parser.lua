@@ -69,7 +69,6 @@ function M.parse_lines(buf_lines)
       req:add_data(key, value)
       -- match file for data
     elseif l:match('^%@') then
-      print("found:", l)
       req.data_filename = l
     elseif l:match('^%s*$') then
       M.add_request(req)

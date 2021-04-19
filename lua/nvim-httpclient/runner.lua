@@ -94,7 +94,6 @@ function M.make_requests(reqs, vars, status_handler, view_handler)
   variables = vars
   -- bind callback with args to single func with no args
   update_status_callback = function()
-  print("runner closure Requests:", #reqs)
     status_handler(running, requests)
   end
   -- update_status_callback = status_handler

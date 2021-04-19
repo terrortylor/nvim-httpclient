@@ -111,10 +111,12 @@ function Request:get_data(variables)
   local complete_data = true
 
   local var_sub = function(value)
-    local var = value:match("^@(.*)@$")
+    local var = value:match("@(.*)@")
     if var then
-      if variables[var] then
-        return variables[var]
+      -- TODO only handles a single substitute
+      local var_val = variables[var]
+      if var_val then
+        return value:gsub("@" .. var .. "@", var_val)
       else
         self.state = MISSING_DATA
         complete_data = false
@@ -199,7 +201,6 @@ function Request:get_curl(variables)
     verb = self.verb
   end
 
---  print("about to getdata")
   local success, data = self:get_data(variables)
   if not success then
     return nil
