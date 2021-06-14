@@ -129,7 +129,6 @@ function Request:get_data(variables)
   if self.data_filename then
     return true, self.data_filename
   elseif self.data then
---    print("building data string")
     -- data is key/value pairs
     for _, v in pairs(self.data) do
       -- local key = var_sub(k)

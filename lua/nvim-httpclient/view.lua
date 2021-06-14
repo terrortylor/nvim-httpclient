@@ -97,6 +97,7 @@ function M.create_result_scratch_buf()
     -- create unlisted scratch buffer
     M.result_buf = api.nvim_create_buf(false, true)
     api.nvim_buf_set_option(M.result_buf, "filetype", "httpresult")
+    api.nvim_buf_set_name(M.result_buf, 'HttpClientResult')
     -- TODO set not modifiable
   end
 end

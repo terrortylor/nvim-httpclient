@@ -20,7 +20,7 @@ describe('variables', function()
   }
 
   for _,t in pairs(test_table) do
-    it("Line: " .. t.line, function()
+    it("expected cURL command for block at line: " .. t.line, function()
       vim.cmd("e tests/input/var_extract_example.http")
       vim.api.nvim_win_set_cursor(0, {t.line,0})
 
@@ -35,10 +35,18 @@ describe('variables', function()
       vim.cmd("e tests/input/var_extract_example.http")
 
       vim.cmd("HttpclientRunFile")
-      vim.wait("1000")
+      vim.wait("500")
+
+      -- get result buffer id
+      local result_buf = 0
+      for _, v in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.fn.bufname(v) == "HttpClientResult" then
+          result_buf = v
+        end
+      end
 
       local result = vim.api.nvim_buf_get_lines(
-      4, 0, vim.api.nvim_buf_line_count(4), false
+      result_buf, 0, vim.api.nvim_buf_line_count(result_buf), false
       )
 
       local expected = {}
