@@ -31,7 +31,7 @@ function M.async_curl(request)
   -- TODO move to func, request would benefit from being class
   local handle
   handle = vim.loop.spawn('curl', {
-      args = vim.split(curl_args, ' '),
+      args = curl_args,
       stdio = {stdout,stderr}
     },
     vim.schedule_wrap(function()
@@ -44,6 +44,7 @@ function M.async_curl(request)
         request:set_done()
         count = count + 1
 
+        -- TODO breaks if error in response or not JSON
         local vars = request:get_extracted_values()
         if vars then
           for k,v in pairs(vars) do

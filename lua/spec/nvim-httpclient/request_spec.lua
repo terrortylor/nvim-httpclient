@@ -132,9 +132,9 @@ describe('nvim-httpclient', function()
         local testObj = Request:new(nil)
         testObj.url = 'goats.com'
 
-        local curl = testObj:get_curl()
+        local curl = testObj:get_curl({})
 
-        assert.equals('-X GET goats.com', curl)
+        assert.are.same({'-X', 'GET', 'goats.com'}, curl)
       end)
 
       it('Should return url and expected verb', function()
@@ -142,9 +142,9 @@ describe('nvim-httpclient', function()
         testObj.url = 'goats.com'
         testObj.verb = 'PUT'
 
-        local curl = testObj:get_curl()
+        local curl = testObj:get_curl({})
 
-        assert.equals('-X PUT goats.com', curl)
+        assert.are.same({'-X', 'PUT', 'goats.com'}, curl)
       end)
 
       it('Should return url and expected verb', function()
@@ -152,9 +152,9 @@ describe('nvim-httpclient', function()
         testObj.url = 'goats.com'
         testObj.verb = 'PUT'
 
-        local curl = testObj:get_curl()
+        local curl = testObj:get_curl({})
 
-        assert.equals('-X PUT goats.com', curl)
+        assert.are.same({'-X', 'PUT', 'goats.com'}, curl)
       end)
 
       it('Should return curl with query params', function()
@@ -164,9 +164,9 @@ describe('nvim-httpclient', function()
           'goat=cheese'
         }
 
-        local curl = testObj:get_curl()
+        local curl = testObj:get_curl({})
 
-        assert.equals('-X GET goats.com?goat=cheese', curl)
+        assert.are.same({'-X', 'GET', 'goats.com?goat=cheese'}, curl)
       end)
 
       it('Should return PUT curl data arguement params', function()
@@ -177,9 +177,9 @@ describe('nvim-httpclient', function()
           'goat=cheese'
         }
 
-        local curl = testObj:get_curl()
+        local curl = testObj:get_curl({})
 
-        assert.equals('-X PUT goats.com --data goat=cheese', curl)
+        assert.are.same({'-X', 'PUT', 'goats.com', '--data', 'goat=cheese'}, curl)
       end)
 
       it('Should return POST curl data arguement params', function()
@@ -190,9 +190,9 @@ describe('nvim-httpclient', function()
           'goat=cheese'
         }
 
-        local curl = testObj:get_curl()
+        local curl = testObj:get_curl({})
 
-        assert.equals('-X POST goats.com --data goat=cheese', curl)
+        assert.are.same({'-X', 'POST', 'goats.com', '--data', 'goat=cheese'}, curl)
       end)
 
       it('Should substitute all variables', function()
@@ -207,7 +207,7 @@ describe('nvim-httpclient', function()
 
         local curl = testObj:get_curl(variables)
 
-        assert.equals('-X GET goats.com/some/info', curl)
+        assert.are.same({'-X', 'GET', 'goats.com/some/info'}, curl)
       end)
     end)
 

@@ -61,7 +61,7 @@ end
 function Request:get_extracted_values()
   local t = {}
 
-  if not self.extract then
+  if #self.extract == 0 then
     return
   end
 
@@ -179,27 +179,34 @@ function Request:is_missing_data()
   return self.state == MISSING_DATA
 end
 
-local function substitute_variables(string, variables)
+local function substitute_variables(args, variables)
   local missing_data = false
 
-  for var in string:gmatch("@([%w-_]+)@") do
-    -- TODO only handles a single substitute
-    local value = variables[var]
-    if value then
-      string = string:gsub("@" .. var .. "@", value)
-    else
-      -- TODO this just returns early... doesn't check for other missing/availabel vars, so not great
-      missing_data = true
+  for index, arg in ipairs(args) do
+    local subbed_string = arg
+    for var in arg:gmatch("@([%w-_]+)@") do
+      -- local var = arg:match("@([%w-_]+)@")
+      if var then
+        -- TODO only handles a single substitute
+        local value = variables[var]
+        if value then
+          subbed_string = subbed_string:gsub("@" .. var .. "@", value)
+        else
+          -- TODO this just returns early... doesn't check for other missing/availabel vars, so not great
+          missing_data = true
+        end
+      end
     end
-  end
+    args[index] = subbed_string
 
-  return missing_data, string
+  end
+  return missing_data, args
 end
 
 -- TODO spawn takes arguments, so is it worth building this as string? probably not!
 function Request:get_curl(variables)
   local args = {}
-  -- get all the parts
+
   local verb = 'GET'
   if self.verb then
     verb = self.verb
@@ -207,33 +214,31 @@ function Request:get_curl(variables)
 
   local data = self:get_data()
 
-  local url = self:get_url()
-
   table.insert(args, "-X")
-  table.insert(args, self.verb)
-  table.insert(args, self:get_url())
-  -- start to build curl command
-  -- TODO wrap url in double quotes
-  local curl = string.format('-X %s %s', verb, url)
+  table.insert(args, verb)
 
   -- are there query parameters to add
   -- TODO rather than POST, check for GET or DELETE
   -- TODO no handling of PATCH
+  -- TODO swap the logic here
   if data ~= '' then
     if verb == "POST" or verb == "PUT" then
-      curl = string.format('%s --data %s', curl, data)
+      table.insert(args, self:get_url())
+      table.insert(args, "--data")
+      table.insert(args, data)
     else
-      curl = string.format('%s?%s', curl, data)
+      table.insert(args, string.format('%s?%s', self:get_url(), data))
     end
+  else
+    table.insert(args, self:get_url())
   end
 
   for k,v in pairs(self.headers) do
     table.insert(args, "-H")
     table.insert(args, string.format("%s: %s", k, v))
-   curl = string.format("%s -H '%s:%s'", curl, k, v)
   end
 
-  local missing_data, subbed_curl = substitute_variables(curl, variables)
+  local missing_data, subbed_curl = substitute_variables(args, variables)
   if missing_data then
     self.state = MISSING_DATA
   end
