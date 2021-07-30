@@ -89,9 +89,8 @@ describe('nvim-httpclient', function()
       it('Should return empty string when nothing set', function()
         local testObj = Request:new(nil)
 
-        local success, data = testObj:get_data()
+        local data = testObj:get_data()
 
-        assert.equals(true, success)
         assert.equals('', data)
       end)
 
@@ -99,9 +98,8 @@ describe('nvim-httpclient', function()
         local testObj = Request:new(nil)
         testObj.data_filename = '@goats.txt'
 
-        local success, data = testObj:get_data()
+        local data = testObj:get_data()
 
-        assert.equals(true, success)
         assert.equals('@goats.txt', data)
       end)
 
@@ -111,9 +109,8 @@ describe('nvim-httpclient', function()
           'booze=cruise',
         }
 
-        local success, data = testObj:get_data()
+        local data = testObj:get_data()
 
-        assert.equals(true, success)
         assert.equals('booze=cruise', data)
       end)
 
@@ -124,9 +121,8 @@ describe('nvim-httpclient', function()
           'booze=cruise',
         }
 
-        local success,data = testObj:get_data()
+        local data = testObj:get_data()
 
-        assert.equals(true, success)
         assert.equals('goat=cheese&booze=cruise', data)
       end)
     end)
@@ -198,7 +194,23 @@ describe('nvim-httpclient', function()
 
         assert.equals('-X POST goats.com --data goat=cheese', curl)
       end)
+
+      it('Should substitute all variables', function()
+        local variables = {
+          url = "goats",
+          path = "info",
+          data = "chris",
+        }
+        local testObj = Request:new(nil)
+        testObj.url = '@url@.com'
+        testObj.path = '/some/@path@'
+
+        local curl = testObj:get_curl(variables)
+
+        assert.equals('-X GET goats.com/some/info', curl)
+      end)
     end)
+
 
     -- describe('add_result_line', function()
     --   it('Should have empty results table if not called', function()

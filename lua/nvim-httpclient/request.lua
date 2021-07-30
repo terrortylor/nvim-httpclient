@@ -105,45 +105,32 @@ function Request:get_title()
   return verb .. " - " .. self.url
 end
 
-function Request:get_data(variables)
+-- function Request:get_data(variables)
+function Request:get_data()
   self.state = NONE
   -- TODO can remove coplete_data as tracked in state
-  local complete_data = true
-
-  local var_sub = function(value)
-    local var = value:match("@(.*)@")
-    if var then
-      -- TODO only handles a single substitute
-      local var_val = variables[var]
-      if var_val then
-        return value:gsub("@" .. var .. "@", var_val)
-      else
-        self.state = MISSING_DATA
-        complete_data = false
-      end
-    end
-    return value
-  end
+  -- local complete_data = true
 
   local data_string = ''
   if self.data_filename then
-    return true, self.data_filename
+    return self.data_filename
   elseif self.data then
     -- data is key/value pairs
     for _, v in pairs(self.data) do
       -- local key = var_sub(k)
-      local value = var_sub(v)
-      data_string = data_string .. string.format('%s&', value)
-      if not complete_data then
-        return complete_data, nil
-      end
+      -- local value = var_sub(v)
+      -- TODO rather than build string, do list and join with a charecter
+      data_string = data_string .. string.format('%s&', v)
+      -- if not complete_data then
+      --   return complete_data, nil
+      -- end
     end
     -- trim remaining &
     if data_string:match("&$") then
       data_string = data_string:sub(1, -2)
     end
   end
-  return complete_data, data_string
+  return data_string
 end
 
 function Request:get_url()
@@ -192,21 +179,39 @@ function Request:is_missing_data()
   return self.state == MISSING_DATA
 end
 
+local function substitute_variables(string, variables)
+  local missing_data = false
+
+  for var in string:gmatch("@([%w-_]+)@") do
+    -- TODO only handles a single substitute
+    local value = variables[var]
+    if value then
+      string = string:gsub("@" .. var .. "@", value)
+    else
+      -- TODO this just returns early... doesn't check for other missing/availabel vars, so not great
+      missing_data = true
+    end
+  end
+
+  return missing_data, string
+end
+
 -- TODO spawn takes arguments, so is it worth building this as string? probably not!
 function Request:get_curl(variables)
+  local args = {}
   -- get all the parts
   local verb = 'GET'
   if self.verb then
     verb = self.verb
   end
 
-  local success, data = self:get_data(variables)
-  if not success then
-    return nil
-  end
+  local data = self:get_data()
 
   local url = self:get_url()
 
+  table.insert(args, "-X")
+  table.insert(args, self.verb)
+  table.insert(args, self:get_url())
   -- start to build curl command
   -- TODO wrap url in double quotes
   local curl = string.format('-X %s %s', verb, url)
@@ -223,8 +228,15 @@ function Request:get_curl(variables)
   end
 
   for k,v in pairs(self.headers) do
-   curl = string.format("%s -H '%s: %s'", curl, k, v)
+    table.insert(args, "-H")
+    table.insert(args, string.format("%s: %s", k, v))
+   curl = string.format("%s -H '%s:%s'", curl, k, v)
   end
 
-  return curl
+  local missing_data, subbed_curl = substitute_variables(curl, variables)
+  if missing_data then
+    self.state = MISSING_DATA
+  end
+
+  return subbed_curl
 end
