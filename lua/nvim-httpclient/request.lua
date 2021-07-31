@@ -204,7 +204,7 @@ local function substitute_variables(args, variables)
 end
 
 -- TODO spawn takes arguments, so is it worth building this as string? probably not!
-function Request:get_curl(variables)
+function Request:get_curl(variables, inspect)
   local args = {}
 
   local verb = 'GET'
@@ -235,7 +235,11 @@ function Request:get_curl(variables)
 
   for k,v in pairs(self.headers) do
     table.insert(args, "-H")
-    table.insert(args, string.format("%s: %s", k, v))
+    if inspect then
+      table.insert(args, string.format("'%s: %s'", k, v))
+    else
+      table.insert(args, string.format("%s: %s", k, v))
+    end
   end
 
   local missing_data, subbed_curl = substitute_variables(args, variables)

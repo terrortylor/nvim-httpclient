@@ -35,6 +35,7 @@ function M.update_result_buf(requests)
       '#######################',
       req:get_title()
     })
+    -- TODO if json then format
     M.add_lines(req:get_results())
     M.add_lines({
       '',

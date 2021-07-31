@@ -81,7 +81,7 @@ function M.inspect_curl()
   local requests,_ = parser.parse_lines(lines) -- luacheck: ignore
 
   if #requests > 0 then
-    local curl = "curl " .. requests[1]:get_curl(variables)
+    local curl = "curl " .. vim.fn.join(requests[1]:get_curl(variables, true), " ")
     api.nvim_command("echo \"" .. curl .. "\"")
     if M.config.register then
       api.nvim_command(string.format('let @%s = "%s"', M.config.register, curl))

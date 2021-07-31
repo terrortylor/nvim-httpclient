@@ -4,6 +4,9 @@ https://jsonplaceholder.typicode.com
 GET /todos/1
 
 https://jsonplaceholder.typicode.com
+GET /todos/@postID@
+
+https://jsonplaceholder.typicode.com
 POST /todos
 userId=123
 title:@postID@

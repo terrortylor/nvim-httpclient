@@ -15,6 +15,10 @@ describe('variables', function()
     },
     {
       line = 6,
+      curl = "curl -X GET https://jsonplaceholder.typicode.com/todos/2"
+    },
+    {
+      line = 9,
       curl = 'curl -X POST https://jsonplaceholder.typicode.com/todos --data userId=123&title=2&completed=false'
     },
   }

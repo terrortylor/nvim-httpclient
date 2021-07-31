@@ -8,6 +8,15 @@ GET - https://jsonplaceholder.typicode.com
 }
 
 #######################
+GET - https://jsonplaceholder.typicode.com
+{
+  "userId": 1,
+  "id": 2,
+  "title": "quis ut nam facilis et officia qui",
+  "completed": false
+}
+
+#######################
 POST - https://jsonplaceholder.typicode.com
 {
   "userId": "123",

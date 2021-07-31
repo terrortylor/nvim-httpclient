@@ -11,7 +11,7 @@ local update_status_callback
 local update_view_callback
 
 function M.async_curl(request)
-  local curl_args = request:get_curl(variables)
+  local curl_args = request:get_curl(variables, false)
   -- nil if missing data
   if not curl_args then return end
 
@@ -45,13 +45,13 @@ function M.async_curl(request)
         count = count + 1
 
         -- TODO breaks if error in response or not JSON
-        local vars = request:get_extracted_values()
-        if vars then
-          for k,v in pairs(vars) do
-            variables[k] = v
-          end
-          M.go()
-        end
+        -- local vars = request:get_extracted_values()
+        -- if vars then
+        --   for k,v in pairs(vars) do
+        --     variables[k] = v
+        --   end
+        --   M.go()
+        -- end
 
         -- -- FIXME this cleanup is not accurate, as is missing data for request this should not be reached
         -- if count == #requests then
