@@ -1,5 +1,7 @@
 # nvim-httpclient
 
+** THIS SHOULD NOT BE USED ATM, STILL HAS DEPENDENCIES ON EXTERNAL SOURCES. VERY MUCH A WIP **
+
 Use nvim as a cURL interface, asynchronously with a results window.
 
 I write a lot of cURL commands, and quite often will have a directory within a project simply for these. These could be to get the state of something, or even to setup the state of a target ready for some testing etc. What I find quite often is that
