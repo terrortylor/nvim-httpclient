@@ -36,6 +36,7 @@ function M.parse_lines(buf_lines)
 -- TODO add json block support
 -- TODO special json headers
   for _,l in pairs(buf_lines) do
+
     -- matches a comment
     if l:match('^%s*#') then
       goto skip_to_next_line
@@ -43,26 +44,28 @@ function M.parse_lines(buf_lines)
     elseif l:match('^skipSSL$') then
       req.skipSSL = true
       -- match variable
-      -- FIXME remove support for lower case
-    elseif l:match("^[vV][aA][rR]%s+(.*)[=:](.*)") then
-      local key, value = l:match("[vV][aA][rR]%s+(.*)[=:](.*)")
+    elseif l:match("^V%s+(.*)[=:](.*)") or
+    l:match("^VAR%s+(.*)[=:](.*)") then
+      local key, value = l:match("[V][A][R]%s+(.*)[=:](.*)")
       variables[key] = value
-      -- FIXME remove support for lower case
-    elseif l:match("^[sS][eE][tT]%s+(.*)[=:](.*)") then
+    elseif l:match("^S%s+(.*)[=:](.*)") or
+    l:match("^SET%s+(.*)[=:](.*)") then
       local key, value = l:match("^[sS][eE][tT]%s+(.*)[=:](.*)")
       req:add_extract(key, value)
       -- matches url
     elseif is_url(l) then
       req.url = l
+      -- matches headers
+    elseif l:match('^H[EADER]*%s+.*[=:]') or
+      l:match('^HEADER*%s+.*[=:]') then
+      local key,value = l:match('^H[EADER]*%s+(.*)[=:](.*)')
+      req:add_header(key, vim.trim(value))
       -- matches verb and path
+      -- TODO should path always start with /
     elseif l:match('^%a+%s[%a%d/_-]+') then
       local verb, path = l:match('(.*)%s(.*)')
       req.verb = verb
       req.path = path
-      -- matches headers
-    elseif l:match('^H[EADER]*[=:].*[=:]') then
-      local key,value = l:match('^H[EADER]*[=:](.*)[=:](.*)')
-      req:add_header(key, vim.trim(value))
       -- Matches data key value pairs
     elseif l:match('^(.*)[=:](.*)$') then
       local key,value = l:match('(.*)[=:](.*)')

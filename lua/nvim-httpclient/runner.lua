@@ -24,6 +24,7 @@ function M.async_curl(request)
     if err then
       -- TODO handle err
       request:add_result_line("ERROR")
+      request:set_failed()
     end
     if data then request.result = data end
   end

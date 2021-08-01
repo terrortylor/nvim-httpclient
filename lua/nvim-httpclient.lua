@@ -20,9 +20,19 @@ M.config = {
   -- handlers used to update status and show results
   update_status = view.show_status,
   update_results = view.update_result_buf,
-  -- register to put into, when viewing a request curl
+  -- register to use, when inspecting a HTTP block
   -- if nil then does nothing
-  register = "+"
+  register = "+",
+  -- enable/disabled keymaps
+  enable_keymaps = true,
+  -- Run file
+  run_file = "<leader>gtf",
+  -- run last command
+  run_last = "<leader>gtt",
+  -- run current http block
+  run_current = "<leader>gtn",
+  -- inspect current http block
+  inspect_current = "<leader>gti",
 }
 
 function M.get_current()
@@ -81,7 +91,7 @@ function M.inspect_curl()
   local requests,_ = parser.parse_lines(lines) -- luacheck: ignore
 
   if #requests > 0 then
-    local curl = "curl " .. vim.fn.join(requests[1]:get_curl(variables, true), " ")
+    local curl = "curl " .. table.concat(requests[1]:get_curl(variables, true), " ")
     api.nvim_command("echo \"" .. curl .. "\"")
     if M.config.register then
       api.nvim_command(string.format('let @%s = "%s"', M.config.register, curl))
@@ -133,7 +143,23 @@ function M.run(current)
   runner.make_requests(requests, variables, update_status, update_view)
 end
 
-function M.setup()
+function M.set_buf_keymaps()
+  if  M.config.enable_keymaps then
+    local opts = {noremap = true, silent = true}
+    local function keymap(...) vim.api.nvim_buf_set_keymap(0, ...) end
+
+    -- Run all http requests in file
+    keymap("n", M.config.run_file, ":HttpclientRunFile<CR>", opts)
+    -- TODO this is not yet implemented
+    keymap("n", M.config.run_file, ":HttpclientRunFile<CR>", opts)
+    keymap("n", M.config.run_current, ":HttpclientRunCurrent<CR>", opts)
+    keymap("n", M.config.inspect_current, ":HttpclientInspectCurrent<CR>", opts)
+  end
+end
+
+function M.setup(user_opts)
+  M.config = vim.tbl_extend('force', M.config, user_opts or {})
+
   local command = {
     'command!',
     '-nargs=0',
@@ -161,6 +187,7 @@ function M.setup()
   local autogroups = {
     http_filetype_detect = {
       {"BufNewFile,BufRead", "*.http", "set filetype=http"},
+      {"FileType", "http", "lua require(\"nvim-httpclient\").set_buf_keymaps()"},
     }
   }
 

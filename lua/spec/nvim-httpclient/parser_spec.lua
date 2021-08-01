@@ -110,8 +110,8 @@ describe('nvim-httpclient', function()
 
       it('Should match set extract values with : seperator', function()
         local lines = {
-          "set goats.com",
-          "set goat:cheese",
+          "SET goats.com",
+          "SET goat:cheese",
           "SET blue:stuff",
         }
 
@@ -123,9 +123,9 @@ describe('nvim-httpclient', function()
       it('Should match header', function()
         local lines = {
           "goats.com",
-          "H:Accept: application/json",
-          "HEAD:X-Track: goats",
-          "HEADER:X-GO: hummos",
+          "H Accept: application/json",
+          "HEAD X-Track: goats",
+          "HEADER X-GO: hummos",
         }
 
         local result, _ = testModule.parse_lines(lines)
@@ -173,9 +173,9 @@ describe('nvim-httpclient', function()
 
       it('Should match variables key values with = seperator', function()
         local lines = {
-          "var goats.com",
-          "var goat=cheese",
-          "var blue=tasty"
+          "VAR goats.com",
+          "VAR goat=cheese",
+          "VAR blue=tasty"
         }
         local _, variables = testModule.parse_lines(lines)
 
@@ -190,8 +190,8 @@ describe('nvim-httpclient', function()
           "another=queryparam",
           "fromvar=@house@",
           "",
-          "var var1=value",
-          "var var2=words"
+          "VAR var1=value",
+          "VAR var2=words"
         }
 
         local result, variables = testModule.parse_lines(lines)

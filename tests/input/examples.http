@@ -15,16 +15,16 @@ id=12
 goat:cheese
 
 https://example.com
-HEADER=Accept: application/json
+HEADER Accept: application/json
 GET /path
 id=12
 
 example.com
-HEADER=Content-Type: application/json
+H Content-Type: application/json
 POST /goats
 name=cheeseman
 
 example.com
-HEADER=Content-Type: application/json
+HEADER Content-Type: application/json
 POST /goats
 @input.txt

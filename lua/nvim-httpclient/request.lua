@@ -179,6 +179,10 @@ function Request:is_missing_data()
   return self.state == MISSING_DATA
 end
 
+function Request:is_failed()
+  return self.state == ERROR
+end
+
 local function substitute_variables(args, variables)
   local missing_data = false
 
