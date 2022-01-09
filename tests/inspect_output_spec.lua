@@ -52,6 +52,14 @@ describe('parse http', function()
       line = 27,
       curl = "curl -X POST example.com/goats --data @input.txt -H 'Content-Type: application/json'"
     },
+    {
+      line = 32,
+      curl = "curl -X POST https://cheese.example.com:443/goats --data @input.txt",
+    },
+    {
+      line = 37,
+      curl = "curl -X POST https://cheese.example.com:443/goats/soft?api-version=2022&itchy=%2Ftriggers%2F --data @input.txt",
+    },
   }
 
   for _,t in pairs(test_table) do

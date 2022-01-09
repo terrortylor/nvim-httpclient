@@ -28,3 +28,11 @@ example.com
 HEADER Content-Type: application/json
 POST /goats
 @input.txt
+
+https://cheese.example.com:443
+POST /goats
+@input.txt
+
+https://cheese.example.com:443
+POST /goats/soft?api-version=2022&itchy=%2Ftriggers%2F
+@input.txt

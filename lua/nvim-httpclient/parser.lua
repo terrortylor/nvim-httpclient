@@ -62,7 +62,7 @@ function M.parse_lines(buf_lines)
       req:add_header(key, vim.trim(value))
       -- matches verb and path
       -- TODO should path always start with /
-    elseif l:match('^%a+%s[%a%d/_-]+') then
+    elseif l:match('^%a+%s.+') then
       local verb, path = l:match('(.*)%s(.*)')
       req.verb = verb
       req.path = path
