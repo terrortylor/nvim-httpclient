@@ -188,6 +188,7 @@ function M.setup(user_opts)
     http_filetype_detect = {
       {"BufNewFile,BufRead", "*.http", "set filetype=http"},
       {"FileType", "http", "lua require(\"nvim-httpclient\").set_buf_keymaps()"},
+      {"FileType", "http", [[set commentstring=#\ %s]]},
     }
   }
 
