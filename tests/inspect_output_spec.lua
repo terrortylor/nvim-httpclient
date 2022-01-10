@@ -58,6 +58,7 @@ describe('parse http', function()
     },
     {
       line = 37,
+      -- luacheck: ignore
       curl = "curl -X POST https://cheese.example.com:443/goats/soft?api-version=2022&itchy=%2Ftriggers%2F --data @input.txt",
     },
   }
