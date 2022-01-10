@@ -73,7 +73,7 @@ end
 
 -- FIXME currently broken when inspecting request with missing data
 -- FIXME check request with headers...
-function M.inspect_curl()
+local function inspect_curl()
   local filetype = api.nvim_buf_get_option(0, 'filetype')
 
   if filetype ~= 'http' then
@@ -101,7 +101,7 @@ function M.inspect_curl()
 
 end
 
-function M.run(current)
+local function run(current)
   current = current or false
 
   local filetype = api.nvim_buf_get_option(0, 'filetype')
@@ -142,6 +142,15 @@ function M.run(current)
   runner.make_requests(requests, variables, update_status, update_view)
 end
 
+local function run_current()
+  run(true)
+end
+
+local function run_file()
+  run(false)
+end
+
+
 function M.set_buf_keymaps()
   if  M.config.enable_keymaps then
     local opts = {noremap = true, silent = true}
@@ -159,29 +168,29 @@ end
 function M.setup(user_opts)
   M.config = vim.tbl_extend('force', M.config, user_opts or {})
 
-  local command = {
-    'command!',
-    '-nargs=0',
-    'HttpclientRunFile',
-    "lua require(\"nvim-httpclient\").run()"
-  }
-  api.nvim_command(table.concat(command, ' '))
+  vim.api.nvim_add_user_command(
+  "HttpclientRunFile",
+  run_file,
+  {force = true}
+  )
 
-  command = {
-    'command!',
-    '-nargs=0',
-    'HttpclientRunCurrent',
-    "lua require(\"nvim-httpclient\").run(true)"
-  }
-  api.nvim_command(table.concat(command, ' '))
+  vim.api.nvim_add_user_command(
+  'HttpclientOpenResults',
+  open_results,
+  {force = true}
+  )
 
-  command = {
-    'command!',
-    '-nargs=0',
-    'HttpclientInspectCurrent',
-    "lua require(\"nvim-httpclient\").inspect_curl()"
-  }
-  api.nvim_command(table.concat(command, ' '))
+  vim.api.nvim_add_user_command(
+  'HttpclientRunCurrent',
+  run_current,
+  {force = true}
+  )
+
+  vim.api.nvim_add_user_command(
+  'HttpclientInspectCurrent',
+  inspect_curl,
+  {force = true}
+  )
 
   vim.cmd([[augroup http_filetype_detect
   autocmd BufNewFile,BufRead *.http set filetype=http
