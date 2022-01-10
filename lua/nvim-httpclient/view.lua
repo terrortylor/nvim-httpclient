@@ -2,20 +2,18 @@ local api = vim.api
 
 local M = {}
 
-M.result_buf = nil
-
-function M.clear_result_buf()
+function M.clear_result_buf(result_buf)
   api.nvim_buf_set_lines(
-  M.result_buf,
+  result_buf,
   0,
-  api.nvim_buf_line_count(M.result_buf),
+  api.nvim_buf_line_count(result_buf),
   false,
   {}
   )
 end
 
-function M.add_lines(lines)
-  local buf_start = api.nvim_buf_line_count(M.result_buf)
+function M.add_lines(result_buf, lines)
+  local buf_start = api.nvim_buf_line_count(result_buf)
   local buf_end = buf_start
 
   -- An empty buffer still had 1 line
@@ -23,21 +21,21 @@ function M.add_lines(lines)
     buf_start = 0
   end
 
-  api.nvim_buf_set_lines(M.result_buf, buf_start, buf_end, false, lines)
+  api.nvim_buf_set_lines(result_buf, buf_start, buf_end, false, lines)
 end
 
-function M.update_result_buf(requests)
+function M.update_result_buf(result_buf, requests)
   -- TODO is this required is add_lines workes out lines to replace first?
-  M.clear_result_buf()
+  M.clear_result_buf(result_buf)
 
   for _,req in pairs(requests) do
-    M.add_lines({
+    M.add_lines(result_buf, {
       '#######################',
       req:get_title()
     })
     -- TODO if json then format
-    M.add_lines(req:get_results())
-    M.add_lines({
+    M.add_lines(result_buf, req:get_results())
+    M.add_lines(result_buf, {
       '',
     })
 
@@ -91,28 +89,28 @@ function M.show_status(hl_running, hl_complete, is_running, requests)
 end
 
 -- TODO rename to create_result_buf
-function M.create_result_scratch_buf()
-  if M.result_buf then
-    M.clear_result_buf(true)
+function M.create_result_scratch_buf(result_buf)
+  if result_buf then
+    M.clear_result_buf(result_buf)
   else
     -- create unlisted scratch buffer
-    M.result_buf = api.nvim_create_buf(false, true)
+    result_buf = api.nvim_create_buf(false, true)
 
-    -- TODO this doesn't clear the mapping in draw
-    -- probbaly need to decoupe these modules
-    -- so that result_buf always passed to this module
+    -- TODO this leaves the window open though.. how to bind without coupling?
     local command = {
       "autocmd",
-      "WinClosed",
-      "<buffer=" .. M.result_buf .."> ++once",
-      ":lua require('nvim-httpclient.view').result_buf = nil"
+      "BufUnload",
+      "<buffer=" .. result_buf .."> ++once",
+      ":lua require('nvim-httpclient').result_buf = nil"
     }
     vim.cmd(table.concat(command, " "))
 
-    api.nvim_buf_set_option(M.result_buf, "filetype", "httpresult")
-    api.nvim_buf_set_name(M.result_buf, 'HttpClientResult')
+    api.nvim_buf_set_option(result_buf, "filetype", "httpresult")
+    api.nvim_buf_set_name(result_buf, 'HttpClientResult')
     -- TODO set not modifiable
   end
+
+  return result_buf
 end
 
 return M

@@ -34,6 +34,9 @@ M.config = {
   inspect_current = "<leader>gti",
 }
 
+-- Just for completion to show this is being tracked here
+M.result_buf = nil
+
 function M.get_current()
   local linenr = api.nvim_win_get_cursor(0)[1]
   local lines = {}
@@ -114,7 +117,7 @@ local function run(current)
   local update_view = function(...)
     if  not M.config.update_results then return end
 
-    M.config.update_results(...)
+    M.config.update_results(M.result_buf, ...)
   end
 
   local update_status = function(...)
@@ -136,8 +139,10 @@ local function run(current)
     requests = parse_file()
   end
 
-  view.create_result_scratch_buf()
-  draw.open_draw(view.result_buf)
+  print("pre M.result_uf", M.result_buf)
+  M.result_buf = view.create_result_scratch_buf(M.result_buf)
+  print("M.result_uf", M.result_buf)
+  draw.open_draw(M.result_buf)
 
   runner.make_requests(requests, variables, update_status, update_view)
 end
@@ -153,12 +158,12 @@ end
 
 local function open_results()
   -- TODO check buffer exist, i.e. hasn't been wiped, unleaded
-  print("result buf", view.result_buf)
-  if not view.result_buf then
+  print("result buf", M.result_buf)
+  if not M.result_buf then
     print("No results buffer found")
     return
   end
-  draw.open_draw(view.result_buf)
+  draw.open_draw(M.result_buf)
 end
 
 function M.set_buf_keymaps()
