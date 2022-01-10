@@ -19,9 +19,16 @@ GET - https://jsonplaceholder.typicode.com
 #######################
 POST - https://jsonplaceholder.typicode.com
 {
-  "userId": "123",
+  "userID": "123",
   "title": "2",
   "completed": "false",
+  "id": 201
+}
+
+#######################
+POST - https://jsonplaceholder.typicode.com
+{
+  "userID": "@capturedID@",
   "id": 201
 }
 

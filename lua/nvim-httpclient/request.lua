@@ -65,7 +65,7 @@ function Request:get_extracted_values()
     return
   end
 
-  local json = vim.api.nvim_call_function("json_decode", {self.result})
+  local json = vim.fn.json_decode({self.result})
 
   local extract = function(path)
     local chunk = "return function() return json." .. path .. " end"

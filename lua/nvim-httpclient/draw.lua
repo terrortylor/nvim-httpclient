@@ -30,7 +30,6 @@ function M.open_draw(buf, position, size)
     M.toggled_bufs[buf] = props
   end
 
-  print("prps win", props.win)
   if not props.win then
     vim.cmd(M.get_split_command(position, size))
     vim.cmd('buffer ' .. buf)
@@ -51,7 +50,6 @@ function M.close_draw(buf)
   if props and props.win then
     api.nvim_win_close(props.win, false)
     props.win = nil
-    print("props", props.win, " oig", M.toggled_bufs[buf].win)
   end
 end
 

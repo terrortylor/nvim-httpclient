@@ -1,13 +1,24 @@
+# This is a comment
+# Here we initialise a variable called postID to 2
 VAR postID:2
 
 https://jsonplaceholder.typicode.com
 GET /todos/1
 
+# Make a get request substituting the variable postID
 https://jsonplaceholder.typicode.com
 GET /todos/@postID@
 
+# Substitute postID variable, and initialise a new variable
+# called capturedID to the of id in the JSON response
 https://jsonplaceholder.typicode.com
 POST /todos
-userId=123
+userID=123
 title:@postID@
 completed:false
+SET capturedID=id
+
+# Use the capturedID value as the userID parameter value
+https://jsonplaceholder.typicode.com
+POST /todos
+userID=@capturedID@

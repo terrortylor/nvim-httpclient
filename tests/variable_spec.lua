@@ -10,16 +10,20 @@ describe('variables', function()
 
   local test_table = {
     {
-      line = 3,
+      line = 6,
       curl = "curl -X GET https://jsonplaceholder.typicode.com/todos/1"
     },
     {
-      line = 6,
+      line = 9,
       curl = "curl -X GET https://jsonplaceholder.typicode.com/todos/2"
     },
     {
-      line = 9,
-      curl = 'curl -X POST https://jsonplaceholder.typicode.com/todos --data userId=123&title=2&completed=false'
+      line = 14,
+      curl = 'curl -X POST https://jsonplaceholder.typicode.com/todos --data userID=123&title=2&completed=false'
+    },
+    {
+      line = 22,
+      curl = 'curl -X POST https://jsonplaceholder.typicode.com/todos --data userID=@capturedID@'
     },
   }
 

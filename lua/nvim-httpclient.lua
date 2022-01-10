@@ -17,6 +17,7 @@ M.config = {
   progress_running_highlight = "WarningMsg",
   progress_complete_highlight = "WarningMsg",
   -- handlers used to update status and show results
+  -- TODO add draw open/toggle func as handler
   update_status = view.show_status,
   update_results = view.update_result_buf,
   -- register to use, when inspecting a HTTP block
@@ -139,9 +140,7 @@ local function run(current)
     requests = parse_file()
   end
 
-  print("pre M.result_uf", M.result_buf)
   M.result_buf = view.create_result_scratch_buf(M.result_buf)
-  print("M.result_uf", M.result_buf)
   draw.open_draw(M.result_buf)
 
   runner.make_requests(requests, variables, update_status, update_view)
@@ -158,7 +157,6 @@ end
 
 local function open_results()
   -- TODO check buffer exist, i.e. hasn't been wiped, unleaded
-  print("result buf", M.result_buf)
   if not M.result_buf then
     print("No results buffer found")
     return
