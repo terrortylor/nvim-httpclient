@@ -2,7 +2,7 @@ local api = vim.api
 local parser = require('nvim-httpclient.parser')
 local runner = require('nvim-httpclient.runner')
 local view = require('nvim-httpclient.view')
-local draw = require('ui.window.draw')
+local draw = require('nvim-httpclient.draw')
 local M = {}
 local variables
 
@@ -150,6 +150,16 @@ local function run_file()
   run(false)
 end
 
+
+local function open_results()
+  -- TODO check buffer exist, i.e. hasn't been wiped, unleaded
+  print("result buf", view.result_buf)
+  if not view.result_buf then
+    print("No results buffer found")
+    return
+  end
+  draw.open_draw(view.result_buf)
+end
 
 function M.set_buf_keymaps()
   if  M.config.enable_keymaps then

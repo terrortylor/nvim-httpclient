@@ -97,6 +97,18 @@ function M.create_result_scratch_buf()
   else
     -- create unlisted scratch buffer
     M.result_buf = api.nvim_create_buf(false, true)
+
+    -- TODO this doesn't clear the mapping in draw
+    -- probbaly need to decoupe these modules
+    -- so that result_buf always passed to this module
+    local command = {
+      "autocmd",
+      "WinClosed",
+      "<buffer=" .. M.result_buf .."> ++once",
+      ":lua require('nvim-httpclient.view').result_buf = nil"
+    }
+    vim.cmd(table.concat(command, " "))
+
     api.nvim_buf_set_option(M.result_buf, "filetype", "httpresult")
     api.nvim_buf_set_name(M.result_buf, 'HttpClientResult')
     -- TODO set not modifiable
