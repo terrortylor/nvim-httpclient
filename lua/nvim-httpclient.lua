@@ -1,5 +1,4 @@
 local api = vim.api
-local util = require('util.config')
 local parser = require('nvim-httpclient.parser')
 local runner = require('nvim-httpclient.runner')
 local view = require('nvim-httpclient.view')
@@ -184,15 +183,12 @@ function M.setup(user_opts)
   }
   api.nvim_command(table.concat(command, ' '))
 
-  local autogroups = {
-    http_filetype_detect = {
-      {"BufNewFile,BufRead", "*.http", "set filetype=http"},
-      {"FileType", "http", "lua require(\"nvim-httpclient\").set_buf_keymaps()"},
-      {"FileType", "http", [[set commentstring=#\ %s]]},
-    }
-  }
-
-  util.create_autogroups(autogroups)
+  vim.cmd([[augroup http_filetype_detect
+  autocmd BufNewFile,BufRead *.http set filetype=http
+  autocmd FileType http lua require(\"nvim-httpclient\").set_buf_keymaps()
+  autocmd FileType http set commentstring=#\ %s
+  autocmd!
+  augroup END]])
 end
 
 return M
